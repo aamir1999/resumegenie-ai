@@ -7,7 +7,7 @@ import {useEffect, useState} from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "ResumeGenieAI" },
+    { title: "ResumeGenieAI-Aamir" },
     { name: "description", content: "Smart feedback for your dream job!" },
   ];
 }
@@ -44,11 +44,11 @@ export default function Home() {
 
     <section className="main-section">
       <div className="page-heading py-16">
-        <h1>Track Your Applications & Resume Ratings</h1>
+        <h1>Get ATS Scores & Improve Your Resume</h1>
         {!loadingResumes && resumes?.length === 0 ? (
             <h2>No resumes found. Upload your first resume to get feedback.</h2>
         ): (
-          <h2>Review your submissions and check AI-powered feedback.</h2>
+          <h2>Check your ATS scores and optimization recommendations.</h2>
         )}
       </div>
       {loadingResumes && (
