@@ -3,6 +3,10 @@ import { create } from "zustand";
 declare global {
     interface Window {
         puter: {
+            config?: {
+                domain?: string;
+                [key: string]: any;
+            };
             auth: {
                 getUser: () => Promise<PuterUser>;
                 isSignedIn: () => Promise<boolean>;
@@ -242,6 +246,18 @@ export const usePuterStore = create<PuterStore>((set, get) => {
     };
 
     const init = (): void => {
+        // Configure Puter for current domain (fixes Vercel CORS issues)
+        if (typeof window !== "undefined" && window.puter) {
+            // Set domain configuration for Puter
+            const currentDomain = window.location.origin;
+            console.log("Initializing Puter for domain:", currentDomain);
+
+            // Configure Puter with current domain
+            if (window.puter.config) {
+                window.puter.config.domain = currentDomain;
+            }
+        }
+
         const puter = getPuter();
         if (puter) {
             set({ puterReady: true });
@@ -250,8 +266,21 @@ export const usePuterStore = create<PuterStore>((set, get) => {
         }
 
         const interval = setInterval(() => {
-            if (getPuter()) {
+            const puterInstance = getPuter();
+            if (puterInstance) {
                 clearInterval(interval);
+
+                // Configure domain when Puter becomes available
+                if (typeof window !== "undefined") {
+                    const currentDomain = window.location.origin;
+                    console.log("Puter loaded, configuring domain:", currentDomain);
+
+                    // Try to configure domain if config exists
+                    if (window.puter?.config) {
+                        window.puter.config.domain = currentDomain;
+                    }
+                }
+
                 set({ puterReady: true });
                 checkAuthStatus();
             }
@@ -321,7 +350,6 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        // return puter.ai.chat(prompt, imageURL, testMode, options);
         return puter.ai.chat(prompt, imageURL, testMode, options) as Promise<
             AIResponse | undefined
         >;
